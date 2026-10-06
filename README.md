@@ -27,7 +27,7 @@ export default defineConfig({
 });
 ```
 
-Spread `base` rather than putting it in `extends`: oxlint only inherits `rules`, `plugins` and `overrides` from extended configs, so `ignorePatterns` would be lost.
+Spread `base` rather than putting it in `extends`: oxlint doesn't inherit `ignorePatterns` (or `env` and `settings`) from extended configs, so the base ignore list would be lost.
 
 For React, extend the react config:
 
@@ -111,11 +111,11 @@ Add scripts to your `package.json`:
 }
 ```
 
-TypeScript config files require a Node version that can run `.ts` natively (22.18+). If your `tsconfig.json` type-checks these files, enable `resolveJsonModule`.
+The TypeScript configs above need oxlint >= 1.45 and oxfmt >= 0.38; older versions either fail to load them or silently ignore them and use defaults. They also require a Node version that can run `.ts` natively (22.18+). If your `tsconfig.json` type-checks these files, enable `resolveJsonModule`.
 
 ## Tailwind
 
-The Tailwind config uses [oxlint-tailwindcss](https://github.com/sergioazoc/oxlint-tailwindcss), a native oxlint plugin. It requires oxlint >= 1.43.0 and Tailwind CSS v4. Set `settings.tailwindcss.entryPoint` in your own config as shown above.
+The Tailwind config uses [oxlint-tailwindcss](https://github.com/sergioazoc/oxlint-tailwindcss), a native oxlint plugin. It requires Tailwind CSS v4. Set `settings.tailwindcss.entryPoint` in your own config as shown above.
 
 ## Migrating from @switz/eslint-config
 

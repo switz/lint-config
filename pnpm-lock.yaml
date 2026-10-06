@@ -9,10 +9,10 @@ importers:
   .:
     dependencies:
       oxfmt:
-        specifier: '>= 0.1'
+        specifier: '>= 0.38.0'
         version: 0.71.0
       oxlint:
-        specifier: '>= 0.16'
+        specifier: '>= 1.45.0'
         version: 1.86.0
       oxlint-tailwindcss:
         specifier: '*'
