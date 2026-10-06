@@ -12,10 +12,5 @@
         "printWidth": 100
       }
     ]
-  },
-  "settings": {
-    "tailwindcss": {
-      "entryPoint": "src/styles/globals.css"
-    }
   }
 }

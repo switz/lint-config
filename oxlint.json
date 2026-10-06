@@ -70,6 +70,14 @@
   },
   "overrides": [
     {
+      "files": ["**/*"],
+      "env": {
+        "browser": true,
+        "node": true,
+        "es2024": true
+      }
+    },
+    {
       "files": ["*.ts", "*.tsx", "*.mts", "*.cts"],
       "rules": {
         "no-undef": "off",

@@ -1,61 +1,11 @@
-# switz's eslint-config
+# switz's lint-config
+
+Shared [oxlint](https://oxc.rs/docs/guide/usage/linter) and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) configs.
 
 ## Installation
 
-```
-$ yarn add -D eslint @switz/eslint-config
-# or
-$ pnpm install -D eslint @switz/eslint-config
-```
-
-Update your eslint config (`eslint.config.mjs`)
-
-```js
-import main from '@switz/eslint-config';
-
-export default [...main];
-```
-
-If you need React support, use
-
-```js
-import main from '@switz/eslint-config';
-import react from '@switz/eslint-config/react.mjs';
-
-export default [...main, ...react];
-```
-
-If you need mdx support, use
-
-```js
-import main from '@switz/eslint-config';
-import mdx from '@switz/eslint-config/mdx.mjs';
-
-export default [...main, ...mdx];
-```
-
-If you need tailwind support, use:
-
-```js
-import main from '@switz/eslint-config/main.mjs';
-import react from '@switz/eslint-config/react.mjs';
-import tailwind from '@switz/eslint-config/tailwind.mjs';
-
-export default [...main, ...react, ...tailwind];
-```
-
-You should be able to combine configs just by spreading more into the array.
-
-## Oxlint + Oxfmt (Alternative)
-
-This package also ships oxlint and oxfmt configs as a faster alternative to ESLint + Prettier.
-
-### Setup
-
-Install oxlint and oxfmt, then reference the configs:
-
 ```bash
-pnpm install -D oxlint oxfmt
+pnpm install -D oxlint oxfmt @switz/lint-config
 ```
 
 For Tailwind support, also install the native oxlint plugin:
@@ -64,88 +14,116 @@ For Tailwind support, also install the native oxlint plugin:
 pnpm install -D oxlint-tailwindcss
 ```
 
-Create an `oxlint.json` in your project root that extends the base config:
+## Linting
 
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "extends": ["@switz/eslint-config/oxlint"]
-}
+Create an `oxlint.config.ts` in your project root. oxlint picks it up automatically, and it imports the configs straight from the package, so nothing is copied or hardcoded to a `node_modules` path:
+
+```ts
+import { defineConfig } from 'oxlint';
+import base from '@switz/lint-config/oxlint' with { type: 'json' };
+
+export default defineConfig({
+  ...base,
+});
 ```
 
-For React, add the react config:
+Spread `base` rather than putting it in `extends`: oxlint doesn't inherit `ignorePatterns` (or `env` and `settings`) from extended configs, so the base ignore list would be lost.
 
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "extends": [
-    "@switz/eslint-config/oxlint",
-    "@switz/eslint-config/oxlint/react"
-  ]
-}
+For React, extend the react config:
+
+```ts
+import { defineConfig } from 'oxlint';
+import base from '@switz/lint-config/oxlint' with { type: 'json' };
+import react from '@switz/lint-config/oxlint/react' with { type: 'json' };
+
+export default defineConfig({
+  ...base,
+  extends: [react],
+});
 ```
 
-For Tailwind, add the tailwind config:
+For Tailwind, also extend the tailwind config and point it at your Tailwind CSS entry file (required; `settings` are not inherited from extended configs):
 
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "extends": [
-    "@switz/eslint-config/oxlint",
-    "@switz/eslint-config/oxlint/react",
-    "@switz/eslint-config/oxlint/tailwind"
-  ]
-}
+```ts
+import { defineConfig } from 'oxlint';
+import base from '@switz/lint-config/oxlint' with { type: 'json' };
+import react from '@switz/lint-config/oxlint/react' with { type: 'json' };
+import tailwind from '@switz/lint-config/oxlint/tailwind' with { type: 'json' };
+
+export default defineConfig({
+  ...base,
+  extends: [react, tailwind],
+  settings: {
+    tailwindcss: {
+      entryPoint: 'src/styles/globals.css',
+    },
+  },
+});
 ```
 
 Then run:
 
 ```bash
-oxlint -c oxlint.json
+oxlint
 ```
 
-**Formatting** — copy `.oxfmtrc.json` to your project root:
+<details>
+<summary>Using a JSON config instead</summary>
 
-```bash
-cp node_modules/@switz/eslint-config/.oxfmtrc.json .oxfmtrc.json
-oxfmt .
+oxlint's JSON `extends` only accepts file paths, not package names, so reference the files in `node_modules` directly. This breaks if your package manager hoists the package somewhere else (e.g. a monorepo root), and the base `ignorePatterns` are not inherited.
+
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "extends": [
+    "./node_modules/@switz/lint-config/oxlint.json",
+    "./node_modules/@switz/lint-config/oxlint.react.json"
+  ],
+  "ignorePatterns": ["node_modules", "dist", "build", ".next"]
+}
 ```
+
+</details>
+
+## Formatting
+
+Create an `oxfmt.config.ts` in your project root. oxfmt picks it up automatically:
+
+```ts
+import config from '@switz/lint-config/oxfmt' with { type: 'json' };
+
+export default config;
+```
+
+To override an option, spread it: `export default { ...config, printWidth: 80 };`
+
+Alternatively, skip the config file and pass the path directly: `oxfmt -c node_modules/@switz/lint-config/.oxfmtrc.json`. Symlinking `.oxfmtrc.json` does not work, because oxfmt ignores symlinked config files.
 
 Add scripts to your `package.json`:
 
 ```json
 {
   "scripts": {
-    "lint:ox": "oxlint -c oxlint.json",
-    "fmt:ox": "oxfmt ."
+    "lint": "oxlint",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
   }
 }
 ```
 
-### Tailwind
+The TypeScript configs above need oxlint >= 1.45 and oxfmt >= 0.38; older versions either fail to load them or silently ignore them and use defaults. They also require a Node version that can run `.ts` natively (22.18+). If your `tsconfig.json` type-checks these files, enable `resolveJsonModule`.
 
-The Tailwind oxlint config uses [oxlint-tailwindcss](https://github.com/sergioazoc/oxlint-tailwindcss), a native oxlint plugin. It requires oxlint >= 1.43.0 and Tailwind CSS v4. The plugin auto-detects your Tailwind entry point, but you can override it in your `oxlint.json`:
+## Tailwind
 
-```json
-{
-  "settings": {
-    "tailwindcss": {
-      "entryPoint": "src/styles/globals.css"
-    }
-  }
-}
-```
+The Tailwind config uses [oxlint-tailwindcss](https://github.com/sergioazoc/oxlint-tailwindcss), a native oxlint plugin. It requires Tailwind CSS v4. Set `settings.tailwindcss.entryPoint` in your own config as shown above.
 
-### Gaps vs ESLint configs
+## Migrating from @switz/eslint-config
+
+This package replaces `@switz/eslint-config`, which is no longer maintained. Remove `eslint`, `prettier` and `@switz/eslint-config`, then follow the setup above. Known gaps vs. the old ESLint configs:
 
 - **React**: oxlint covers ~20 of 80+ `eslint-plugin-react` rules. Core rules like `jsx-key`, `no-direct-mutation-state`, hooks rules, and `jsx-no-duplicate-props` are covered. Rules like `no-unstable-nested-components`, `no-array-index-key`, `jsx-handler-names` are not.
-- **Tailwind**: The oxlint config uses `oxlint-tailwindcss` (native plugin) while the ESLint config uses `eslint-plugin-better-tailwindcss`. Both provide equivalent coverage for class sorting, duplicates, conflicts, and whitespace.
-- **MDX**: oxfmt formats `.mdx` files, but does not lint embedded code blocks like `eslint-plugin-mdx` does.
+- **MDX**: oxfmt formats `.mdx` files, but does not lint embedded code blocks like `eslint-plugin-mdx` did.
 - **TypeScript type-aware rules**: oxlint's type-aware checking is in alpha (~73% coverage of `typescript-eslint` recommended rules).
-
-## Reference
-
-https://eslint.org/docs/developer-guide/shareable-configs
 
 ## License
 

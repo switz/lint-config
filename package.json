@@ -1,45 +1,40 @@
 {
-  "name": "@switz/eslint-config",
-  "version": "13.1.0",
-  "description": "",
-  "main": "eslint.config.mjs",
+  "name": "@switz/lint-config",
+  "version": "1.0.0",
+  "description": "Shared oxlint and oxfmt configs",
   "type": "module",
   "exports": {
-    ".": "./eslint.config.mjs",
-    "./react": "./react.mjs",
-    "./tailwind": "./tailwind.mjs",
-    "./mdx": "./mdx.mjs",
+    ".": "./oxlint.json",
     "./oxlint": "./oxlint.json",
-    "./oxfmt": "./.oxfmtrc.json",
+    "./oxlint/react": "./oxlint.react.json",
     "./oxlint/tailwind": "./oxlint.tailwind.json",
-    "./oxlint/react": "./oxlint.react.json"
+    "./oxfmt": "./.oxfmtrc.json"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "eslint-check": "eslint-config-prettier eslint.config.mjs"
+  "files": [
+    "oxlint.json",
+    "oxlint.react.json",
+    "oxlint.tailwind.json",
+    ".oxfmtrc.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/switz/lint-config.git"
   },
+  "homepage": "https://github.com/switz/lint-config#readme",
+  "bugs": "https://github.com/switz/lint-config/issues",
   "author": "",
   "license": "MIT",
   "peerDependencies": {
-    "eslint": ">= 9"
+    "oxlint": ">= 1.45.0",
+    "oxfmt": ">= 0.38.0",
+    "oxlint-tailwindcss": "*"
   },
-  "optionalPeerDependencies": {
-    "oxlint": ">= 0.16",
-    "oxfmt": ">= 0.1"
-  },
-  "dependencies": {
-    "@eslint/js": "^10.0.1",
-    "@typescript-eslint/parser": "^8.60.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-better-tailwindcss": "^4.5.0",
-    "eslint-plugin-mdx": "^3.8.1",
-    "eslint-plugin-prettier": "^5.5.6",
-    "eslint-plugin-react": "^7.34.2",
-    "globals": "^17.6.0",
-    "prettier": "3.8.3",
-    "typescript-eslint": "^8.60.0"
-  },
-  "devDependencies": {
-    "eslint": "^10.4.1"
+  "peerDependenciesMeta": {
+    "oxfmt": {
+      "optional": true
+    },
+    "oxlint-tailwindcss": {
+      "optional": true
+    }
   }
 }
