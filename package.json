@@ -1,6 +1,6 @@
 {
   "name": "@switz/lint-config",
-  "version": "1.0.0",
+  "version": "14.0.0",
   "description": "Shared oxlint and oxfmt configs",
   "type": "module",
   "exports": {
